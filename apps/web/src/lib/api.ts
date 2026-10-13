@@ -126,9 +126,8 @@ export function refreshSession(): Promise<boolean> {
     } catch {
       return false
     } finally {
-      setTimeout(() => {
-        refreshPromise = null
-      }, 0)
+      // Callers that joined while pending already hold the promise; later callers start a new refresh.
+      refreshPromise = null
     }
   })()
   return refreshPromise

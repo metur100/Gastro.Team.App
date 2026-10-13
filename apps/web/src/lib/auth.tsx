@@ -75,8 +75,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const switchTenant = useCallback(
     async (tenantId: string) => {
       session.setTenant(tenantId)
-      qc.clear()
       await establish()
+      // Reset (not clear): mounted queries must stay subscribed and refetch for the new tenant.
+      await qc.resetQueries()
     },
     [qc, establish],
   )
@@ -125,7 +126,7 @@ export function useLocations() {
     queryKey: ['locations'],
     queryFn: () => api.get<Location[]>('/locations'),
     enabled: Boolean(me?.currentTenant),
-    staleTime: 5 * 60_000,
+    staleTime: 30_000,
   })
 }
 

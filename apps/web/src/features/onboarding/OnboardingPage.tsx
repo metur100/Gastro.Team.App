@@ -95,8 +95,8 @@ export default function OnboardingPage() {
               <BusinessStep
                 onDone={async (tenantId) => {
                   session.setTenant(tenantId)
-                  qc.clear()
                   await establish()
+                  await qc.resetQueries()
                   await api.put('/onboarding/step', { step: 2 }).catch(() => undefined)
                   navigate('/onboarding', { replace: true })
                   setStep(2)
