@@ -1,0 +1,20 @@
+# Local SQL Server for development and integration tests (alternative to Windows LocalDB).
+#   docker compose up -d
+#   ConnectionStrings__Default="Server=localhost,1433;Database=GastroTeam;User Id=sa;Password=$MSSQL_SA_PASSWORD;TrustServerCertificate=True"
+#   GT_TEST_SQL="Server=localhost,1433;User Id=sa;Password=$MSSQL_SA_PASSWORD;TrustServerCertificate=True"
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:-Local-Dev-Only-1!}
+    ports:
+      - "1433:1433"
+    volumes:
+      - gastroteam-sql:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      retries: 15
+volumes:
+  gastroteam-sql:
