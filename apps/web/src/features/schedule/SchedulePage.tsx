@@ -18,7 +18,7 @@ import type { CopyResult, Issue, Severity, Shift } from '@/types/api'
 import { DayAgenda } from './DayAgenda'
 import { PublishDialog } from './PublishDialog'
 import { ShiftDialog, type ShiftDialogState } from './ShiftDialog'
-import { worstSeverity } from './ShiftChip'
+import { worstSeverity } from './severity'
 import { WeekGrid, type GridMode } from './WeekGrid'
 import { useMoveShift, useWeek } from './scheduleApi'
 

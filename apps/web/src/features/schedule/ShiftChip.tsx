@@ -4,13 +4,6 @@ import { fmt } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import type { Severity, Shift } from '@/types/api'
 
-export function worstSeverity(severities: Severity[]): Severity | null {
-  if (severities.includes('Error')) return 'Error'
-  if (severities.includes('Warning')) return 'Warning'
-  if (severities.includes('Info')) return 'Info'
-  return null
-}
-
 interface ChipProps {
   shift: Shift
   severity: Severity | null

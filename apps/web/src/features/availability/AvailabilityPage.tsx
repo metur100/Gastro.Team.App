@@ -5,34 +5,14 @@ import { CalendarX2, Clock, Trash2 } from 'lucide-react'
 import { api } from '@/lib/api'
 import { useActiveLocation, usePermissions } from '@/lib/auth'
 import { useAction } from '@/lib/hooks'
-import { fmt, todayString, WEEKDAYS, WEEKDAY_LABEL } from '@/lib/format'
+import { fmt, todayString, WEEKDAY_LABEL } from '@/lib/format'
 import { availabilityKindLabel } from '@/lib/labels'
 import { Button } from '@/components/ui/button'
 import { Checkbox, Field, Input, Label, Select } from '@/components/ui/form'
 import { Badge, Card, CardBody, CardHeader, EmptyState, ErrorState, Notice, PageHeader, Skeleton } from '@/components/ui/display'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/overlay'
-import type { Availability, AvailabilityKind, AvailabilityOverviewItem, AvailabilitySlot, DayOfWeek } from '@/types/api'
-
-type DayMode = 'none' | AvailabilityKind
-interface DayRow {
-  day: DayOfWeek
-  mode: DayMode
-  start: string
-  end: string
-}
-
-export function slotsToRows(slots: AvailabilitySlot[]): DayRow[] {
-  return WEEKDAYS.map((day) => {
-    const s = slots.find((x) => x.dayOfWeek === day)
-    return s ? { day, mode: s.kind, start: s.startTime, end: s.endTime } : { day, mode: 'none', start: '10:00', end: '22:00' }
-  })
-}
-
-export function rowsToSlots(rows: DayRow[]): AvailabilitySlot[] {
-  return rows
-    .filter((r) => r.mode !== 'none')
-    .map((r) => ({ dayOfWeek: r.day, kind: r.mode as AvailabilityKind, startTime: r.start, endTime: r.end === r.start ? '23:59' : r.end, note: null }))
-}
+import type { Availability, AvailabilityOverviewItem } from '@/types/api'
+import { rowsToSlots, slotsToRows, type DayMode, type DayRow } from './availabilityRows'
 
 export default function AvailabilityPage() {
   const p = usePermissions()

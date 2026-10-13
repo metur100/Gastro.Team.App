@@ -7,13 +7,12 @@ import { ApiError, api, errorMessage } from '@/lib/api'
 import { useActiveLocation, usePermissions } from '@/lib/auth'
 import { useAction } from '@/lib/hooks'
 import { addDaysTo, fmt, todayString } from '@/lib/format'
-import { employeeStatusLabel, leaveStatusLabel, leaveTypeLabel } from '@/lib/labels'
+import { employeeStatusLabel, employeeStatusTone as STATUS_TONE, leaveStatusLabel, leaveTypeLabel } from '@/lib/labels'
 import { Button } from '@/components/ui/button'
 import { Avatar, Badge, Card, CardBody, CardHeader, EmptyState, ErrorState, PageHeader, Skeleton } from '@/components/ui/display'
 import { ConfirmDialog } from '@/components/ui/overlay'
 import type { Employee, InvitationCreated, LeaveRequest, Paged, Shift } from '@/types/api'
 import { DeactivateDialog, EmployeeFormDialog, InvitationResultDialog } from './EmployeeDialogs'
-import { STATUS_TONE } from './EmployeesPage'
 
 export default function EmployeeDetailPage() {
   const { id = '' } = useParams()

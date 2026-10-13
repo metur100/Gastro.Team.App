@@ -65,3 +65,10 @@ export const subscriptionStatusLabel: Record<SubscriptionStatus, string> = {
 }
 
 export const TIME_ZONES = ['Europe/Berlin', 'Europe/Vienna', 'Europe/Zurich', 'Europe/Sarajevo', 'Europe/Zagreb', 'Europe/Belgrade']
+
+export const employeeStatusTone: Record<EmployeeStatus, 'success' | 'info' | 'neutral'> = {
+  Active: 'success',
+  Invited: 'info',
+  Inactive: 'neutral',
+  Archived: 'neutral',
+}

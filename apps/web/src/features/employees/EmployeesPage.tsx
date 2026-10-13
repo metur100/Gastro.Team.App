@@ -6,7 +6,7 @@ import { api } from '@/lib/api'
 import { useActiveLocation, usePermissions } from '@/lib/auth'
 import { useAction, useJobRoles } from '@/lib/hooks'
 import { fmt, plural } from '@/lib/format'
-import { employeeStatusLabel } from '@/lib/labels'
+import { employeeStatusLabel, employeeStatusTone as STATUS_TONE } from '@/lib/labels'
 import { qs } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input, Select } from '@/components/ui/form'
@@ -14,13 +14,6 @@ import { Avatar, Badge, Card, EmptyState, ErrorState, PageHeader, Skeleton } fro
 import { DropdownContent, DropdownItem, DropdownMenu, DropdownTrigger } from '@/components/ui/overlay'
 import type { Employee, EmployeeStatus, InvitationCreated, Paged } from '@/types/api'
 import { DeactivateDialog, EmployeeFormDialog, InvitationResultDialog } from './EmployeeDialogs'
-
-export const STATUS_TONE: Record<EmployeeStatus, 'success' | 'info' | 'neutral'> = {
-  Active: 'success',
-  Invited: 'info',
-  Inactive: 'neutral',
-  Archived: 'neutral',
-}
 
 function useDebounced<T>(value: T, delay = 300) {
   const [v, setV] = useState(value)

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { employeeSchema, toRequest } from './employees/employeeSchema'
 import { leaveRequestSchema } from './leave/leaveSchema'
-import { registerSchema } from './auth/RegisterPage'
+import { registerSchema } from './auth/registerSchema'
 import { addDaysTo, fmt, mondayOf, plural, todayString } from '@/lib/format'
 
 const validEmployee = {

@@ -11,17 +11,8 @@ import { Button } from '@/components/ui/button'
 import { Checkbox, Field, Input, Label } from '@/components/ui/form'
 import { Notice } from '@/components/ui/display'
 import { AuthLayout } from './AuthLayout'
+import { registerSchema } from './registerSchema'
 
-export const registerSchema = z
-  .object({
-    firstName: z.string().trim().min(1, 'Bitte geben Sie Ihren Vornamen an.').max(100),
-    lastName: z.string().trim().min(1, 'Bitte geben Sie Ihren Nachnamen an.').max(100),
-    email: z.email('Bitte geben Sie eine gültige E-Mail-Adresse an.'),
-    password: z.string().min(10, 'Das Passwort muss mindestens 10 Zeichen lang sein.').max(128),
-    passwordRepeat: z.string(),
-    acceptTerms: z.boolean().refine((v) => v, 'Bitte akzeptieren Sie die Nutzungsbedingungen und die Datenschutzhinweise.'),
-  })
-  .refine((v) => v.password === v.passwordRepeat, { message: 'Die Passwörter stimmen nicht überein.', path: ['passwordRepeat'] })
 type Values = z.infer<typeof registerSchema>
 
 interface RegisterResponse {
@@ -39,7 +30,9 @@ export default function RegisterPage() {
     defaultValues: { acceptTerms: false },
   })
 
-  const onSubmit = handleSubmit(async ({ passwordRepeat: _, ...values }) => {
+  const onSubmit = handleSubmit(async (form) => {
+    const { firstName, lastName, email, password, acceptTerms } = form
+    const values = { firstName, lastName, email, password, acceptTerms }
     setError(null)
     try {
       const res = await api.post<RegisterResponse>('/auth/register', values)

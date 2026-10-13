@@ -60,7 +60,8 @@ export default function InvitationPage() {
     navigate('/', { replace: true })
   }
 
-  const createAccount = form.handleSubmit(async ({ passwordRepeat: _, ...values }) => {
+  const createAccount = form.handleSubmit(async ({ firstName, lastName, password, acceptTerms }) => {
+    const values = { firstName, lastName, password, acceptTerms }
     setError(null)
     try {
       await finish(await api.post<AcceptResult>('/invitations/accept', { token, ...values }))
