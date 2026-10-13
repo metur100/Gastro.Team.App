@@ -1,4 +1,5 @@
 import { expect, type Page } from '@playwright/test'
+import { confirmTestAccount } from './verify'
 
 export const PASSWORD = 'E2E-Passwort-2026!'
 
@@ -6,7 +7,7 @@ export function uniqueEmail(prefix: string) {
   return `e2e-${prefix}-${Date.now()}-${Math.floor(Math.random() * 1e6)}@e2e.gastroteam.example`
 }
 
-/** Path relative to the app base (works for "/" and "/GastroTeam/" deployments). */
+/** Path relative to the app base (works for "/" and "/Gastro.Team.App/" deployments). */
 export function app(path: string) {
   return path.replace(/^\//, '')
 }
@@ -27,11 +28,16 @@ export async function register(page: Page, email: string, first: string, last: s
   await expect(verify.or(onboarding)).toBeVisible()
   if (await verify.isVisible()) {
     const res = await page.request.get(`${app('/api/v1/dev/emails')}?to=${encodeURIComponent(email)}`)
-    expect(res.ok(), 'Dev mailbox not available – enable Email:UseDevMailbox or disable verification').toBeTruthy()
-    const mails = (await res.json()) as { subject: string; text: string }[]
-    const link = /https?:\/\/\S*email-bestaetigen\S*/.exec(mails.find((m) => m.subject.includes('bestätigen'))!.text)![0]
-    await page.goto(link)
-    await expect(page.getByText('Ihre E-Mail-Adresse ist bestätigt')).toBeVisible()
+    const isJson = res.ok() && (res.headers()['content-type'] ?? '').includes('json')
+    if (isJson) {
+      const mails = (await res.json()) as { subject: string; text: string }[]
+      const link = /https?:\/\/\S*email-bestaetigen\S*/.exec(mails.find((m) => m.subject.includes('bestätigen'))!.text)![0]
+      await page.goto(link)
+      await expect(page.getByText('Ihre E-Mail-Adresse ist bestätigt')).toBeVisible()
+    } else {
+      // Deployed environment without dev mailbox: confirm the throwaway test account in the database (test tooling only).
+      expect(confirmTestAccount(email), 'Cannot verify the test account: set E2E_SQL_* variables or use an environment with the dev mailbox').toBe(true)
+    }
     await login(page, email)
     await expect(onboarding).toBeVisible()
   }

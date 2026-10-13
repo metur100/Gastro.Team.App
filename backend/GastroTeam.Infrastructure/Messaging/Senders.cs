@@ -16,11 +16,19 @@ public sealed class EmailOptions
     public int SmtpPort { get; set; } = 587;
     public string? SmtpUser { get; set; }
     public string? SmtpPassword { get; set; }
-    public bool UseStartTls { get; set; } = true;
+    /// <summary>"Auto" (465 → implicit TLS, otherwise STARTTLS), "SslOnConnect" or "StartTls".</summary>
+    public string Security { get; set; } = "Auto";
     public string FromAddress { get; set; } = "no-reply@gastroteam.example";
     public string FromName { get; set; } = "GastroTeam";
     /// <summary>Development/testing only: keep e-mails in memory and expose them via the dev endpoint.</summary>
     public bool UseDevMailbox { get; set; }
+
+    public SecureSocketOptions SocketOptions => Security.ToLowerInvariant() switch
+    {
+        "sslonconnect" => SecureSocketOptions.SslOnConnect,
+        "starttls" => SecureSocketOptions.StartTls,
+        _ => SmtpPort == 465 ? SecureSocketOptions.SslOnConnect : SecureSocketOptions.StartTls
+    };
 }
 
 public sealed class SmtpEmailSender(IOptions<EmailOptions> options, ILogger<SmtpEmailSender> logger) : IEmailSender
@@ -28,15 +36,30 @@ public sealed class SmtpEmailSender(IOptions<EmailOptions> options, ILogger<Smtp
     private readonly EmailOptions _opt = options.Value;
     public bool IsConfigured => true;
 
+    /// <summary>RFC 2606 / 6761 reserved names never receive real mail (test accounts would only cause bounces).</summary>
+    public static bool IsReservedDomain(string address)
+    {
+        var domain = address[(address.LastIndexOf('@') + 1)..].TrimEnd('.').ToLowerInvariant();
+        return domain is "example.com" or "example.net" or "example.org" or "localhost"
+               || domain.EndsWith(".example") || domain.EndsWith(".invalid") || domain.EndsWith(".test") || domain.EndsWith(".localhost")
+               || domain is "example" or "invalid" or "test";
+    }
+
     public async Task SendAsync(string to, string subject, string htmlBody, string textBody, CancellationToken ct)
     {
+        if (IsReservedDomain(to))
+        {
+            logger.LogInformation("E-mail '{Subject}' not sent: recipient uses a reserved test domain", subject);
+            return;
+        }
         var message = new MimeMessage();
         message.From.Add(new MailboxAddress(_opt.FromName, _opt.FromAddress));
         message.To.Add(MailboxAddress.Parse(to));
         message.Subject = subject;
         message.Body = new BodyBuilder { HtmlBody = htmlBody, TextBody = textBody }.ToMessageBody();
         using var client = new SmtpClient();
-        await client.ConnectAsync(_opt.SmtpHost!, _opt.SmtpPort, _opt.UseStartTls ? SecureSocketOptions.StartTls : SecureSocketOptions.Auto, ct);
+        client.Timeout = 20_000;
+        await client.ConnectAsync(_opt.SmtpHost!, _opt.SmtpPort, _opt.SocketOptions, ct);
         if (!string.IsNullOrEmpty(_opt.SmtpUser)) await client.AuthenticateAsync(_opt.SmtpUser, _opt.SmtpPassword ?? "", ct);
         await client.SendAsync(message, ct);
         await client.DisconnectAsync(true, ct);

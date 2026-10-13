@@ -50,14 +50,14 @@ $envVars = [ordered]@{
     'Jwt__SigningKey'                       = $cfg['GT_JWT_SIGNING_KEY']
     'App__WebBaseUrl'                       = $cfg['GT_WEB_URL']
     'Cors__AllowedOrigins__0'               = $cfg['GT_WEB_ORIGIN']
-    # No e-mail provider configured yet: allow login without verified e-mail (documented in DEPLOYMENT.md).
-    'App__RequireEmailVerification'         = $(if ($cfg['GT_REQUIRE_EMAIL_VERIFICATION']) { $cfg['GT_REQUIRE_EMAIL_VERIFICATION'] } else { 'false' })
+    # E-mail verification is required by default once SMTP is configured (override with GT_REQUIRE_EMAIL_VERIFICATION).
+    'App__RequireEmailVerification'         = $(if ($cfg['GT_REQUIRE_EMAIL_VERIFICATION']) { $cfg['GT_REQUIRE_EMAIL_VERIFICATION'] } elseif ($cfg['GT_SMTP_HOST']) { 'true' } else { 'false' })
     # No payment provider: plan changes are allowed in clearly labelled test mode.
     'App__AllowManualPlanChange'            = $(if ($cfg['GT_ALLOW_MANUAL_PLAN_CHANGE']) { $cfg['GT_ALLOW_MANUAL_PLAN_CHANGE'] } else { 'true' })
 }
-foreach ($k in 'GT_SMTP_HOST', 'GT_SMTP_PORT', 'GT_SMTP_USER', 'GT_SMTP_PASSWORD', 'GT_SMTP_FROM') {
+foreach ($k in 'GT_SMTP_HOST', 'GT_SMTP_PORT', 'GT_SMTP_USER', 'GT_SMTP_PASSWORD', 'GT_SMTP_FROM', 'GT_SMTP_FROM_NAME', 'GT_SMTP_SECURITY') {
     if ($cfg[$k]) {
-        $name = @{ GT_SMTP_HOST = 'Email__SmtpHost'; GT_SMTP_PORT = 'Email__SmtpPort'; GT_SMTP_USER = 'Email__SmtpUser'; GT_SMTP_PASSWORD = 'Email__SmtpPassword'; GT_SMTP_FROM = 'Email__FromAddress' }[$k]
+        $name = @{ GT_SMTP_HOST = 'Email__SmtpHost'; GT_SMTP_PORT = 'Email__SmtpPort'; GT_SMTP_USER = 'Email__SmtpUser'; GT_SMTP_PASSWORD = 'Email__SmtpPassword'; GT_SMTP_FROM = 'Email__FromAddress'; GT_SMTP_FROM_NAME = 'Email__FromName'; GT_SMTP_SECURITY = 'Email__Security' }[$k]
         $envVars[$name] = $cfg[$k]
     }
 }

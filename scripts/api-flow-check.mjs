@@ -39,10 +39,27 @@ function nextTuesday(weeks = 2) {
 const owner = client()
 const ownerEmail = `e2e-api-owner-${run}@e2e.gastroteam.example`
 const reg = await owner.call('POST', '/auth/register', { email: ownerEmail, password: PASSWORD, firstName: 'Api', lastName: 'Check', acceptTerms: true }, 201)
-if (reg?.requiresEmailVerification) {
-  console.log('This environment requires e-mail verification; use the Playwright suite with the dev mailbox instead.')
-  process.exit(2)
+/** Confirms a throwaway test account via sqlcmd (E2E_SQL_SERVER/DB/USER/PASSWORD). Test tooling only. */
+async function confirmTestAccount(email) {
+  const { E2E_SQL_SERVER: server, E2E_SQL_DB: db, E2E_SQL_USER: user, E2E_SQL_PASSWORD: password } = process.env
+  if (!server || !db || !user || !password || !/@e2e\.gastroteam\.example$/i.test(email)) return false
+  const { execFileSync } = await import('node:child_process')
+  const sql = `SET NOCOUNT ON; UPDATE AspNetUsers SET EmailConfirmed = 1 WHERE NormalizedEmail = UPPER('${email}') AND NormalizedEmail LIKE '%@E2E.GASTROTEAM.EXAMPLE'; SELECT @@ROWCOUNT;`
+  const out = execFileSync('sqlcmd', ['-S', server, '-d', db, '-U', user, '-C', '-I', '-h', '-1', '-W', '-Q', sql], { env: { ...process.env, SQLCMDPASSWORD: password } })
+  return out.toString().trim().endsWith('1')
 }
+
+async function verifyIfRequired(response, email, c) {
+  if (!response?.requiresEmailVerification) return
+  await c.call('POST', '/auth/login', { email, password: PASSWORD }, 401) // must be blocked until verified
+  if (!(await confirmTestAccount(email))) {
+    console.log('E-mail verification is required; set E2E_SQL_* to confirm throwaway test accounts.')
+    process.exit(2)
+  }
+  console.log('PASS login blocked before verification; test account confirmed')
+}
+
+await verifyIfRequired(reg, ownerEmail, owner)
 await owner.login(ownerEmail)
 const business = await owner.call('POST', '/onboarding/business', { name: `E2E API Check ${run}`, timeZone: 'Europe/Berlin' }, 201)
 owner.tenant = business.tenantId
@@ -81,7 +98,8 @@ await owner.call('GET', `/reports/scheduled-hours?from=${day}&to=${day}`)
 // Tenant isolation
 const other = client()
 const otherEmail = `e2e-api-other-${run}@e2e.gastroteam.example`
-await other.call('POST', '/auth/register', { email: otherEmail, password: PASSWORD, firstName: 'Fremd', lastName: 'Check', acceptTerms: true }, 201)
+const otherReg = await other.call('POST', '/auth/register', { email: otherEmail, password: PASSWORD, firstName: 'Fremd', lastName: 'Check', acceptTerms: true }, 201)
+await verifyIfRequired(otherReg, otherEmail, other)
 await other.login(otherEmail)
 const otherBusiness = await other.call('POST', '/onboarding/business', { name: `E2E Fremd ${run}`, timeZone: 'Europe/Berlin' }, 201)
 other.tenant = otherBusiness.tenantId

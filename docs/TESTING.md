@@ -29,7 +29,10 @@ npx tsc -b && npx oxlint src && npx vitest run
 # E2E (local): API on :5191 + `npm run dev` on :5300
 npx playwright test
 # E2E against the deployed site (creates throwaway tenants with @e2e.gastroteam.example addresses)
-E2E_BASE_URL=https://metur100.github.io/GastroTeam npx playwright test --project=desktop
+# production requires e-mail verification: throwaway @e2e.gastroteam.example accounts are confirmed via sqlcmd
+E2E_SQL_SERVER=… E2E_SQL_DB=… E2E_SQL_USER=… E2E_SQL_PASSWORD=… E2E_BASE_URL=https://metur100.github.io/Gastro.Team.App npx playwright test --project=desktop
+# API-level workflow check against any environment
+E2E_SQL_SERVER=… node scripts/api-flow-check.mjs https://gastroteam.runasp.net
 ```
 
 The E2E suite covers: owner registers (incl. e-mail verification via dev mailbox where enabled) and onboards; location, opening hours and employee creation; first schedule and publication; editing the week in the planner; invitation link → employee account → employee sees only published shifts; leave request → manager approval with conflict check; second tenant cannot open the first tenant's employee; wrong-password error; mobile drawer navigation, agenda view and no horizontal overflow on key pages.

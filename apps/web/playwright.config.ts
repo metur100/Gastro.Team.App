@@ -3,7 +3,7 @@ import { defineConfig, devices } from '@playwright/test'
 /**
  * End-to-end tests run against a running stack:
  * - local:    E2E_BASE_URL=http://localhost:5300 (Vite dev server proxying to the local API)
- * - deployed: E2E_BASE_URL=https://metur100.github.io/GastroTeam
+ * - deployed: E2E_BASE_URL=https://metur100.github.io/Gastro.Team.App
  * Tests create their own uniquely named tenants and never touch demo or customer data.
  */
 export default defineConfig({
@@ -15,7 +15,7 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {
-    // Trailing slash so relative paths resolve below a sub-path deployment (e.g. /GastroTeam/).
+    // Trailing slash so relative paths resolve below a sub-path deployment (e.g. /Gastro.Team.App/).
     baseURL: (process.env.E2E_BASE_URL ?? 'http://localhost:5300').replace(/\/?$/, '/'),
     locale: 'de-DE',
     timezoneId: 'Europe/Berlin',

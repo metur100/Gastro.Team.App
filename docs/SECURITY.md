@@ -9,7 +9,7 @@
 - **Web:** refresh token in an `HttpOnly; Secure; SameSite=None; Partitioned` cookie scoped to `/api/v1/auth`; access token only in memory (never localStorage). Refresh/logout require the custom header `X-Requested-With: GastroTeam`, which forces a CORS preflight — only allow-listed origins can trigger cookie-based calls (CSRF protection). Other endpoints use bearer tokens only.
   - *Risk:* the web app (GitHub Pages) and API (runasp.net) are different sites, so the cookie is a third-party cookie. Browsers that block third-party cookies even with CHIPS/partitioning (e.g. some Safari configurations) will lose the session on page reload; users then log in again. **Recommendation:** serve app and API from the same registrable domain (e.g. `app.gastroteam.de` / `api.gastroteam.de` via Cloudflare) and switch the cookie to `SameSite=Lax`.
 - **Mobile:** `X-Client: mobile` returns the refresh token in the body; stored with `expo-secure-store` (Keychain / Android Keystore).
-- Rate limiting: auth endpoints 10/min per IP (refresh 60/min), global 600/min per user/IP.
+- Rate limiting: auth endpoints 30/min per IP (refresh 180/min; sized for several staff logging in behind one restaurant Wi-Fi), global 600/min per user/IP. Per-account brute force is stopped by the lockout (5 attempts).
 
 ## Authorisation
 

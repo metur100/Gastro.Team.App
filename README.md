@@ -7,9 +7,9 @@ Schichtplanung und Mitarbeiterverwaltung für Restaurants, Cafés, Bars und Bäc
 | API | ASP.NET Core (.NET 10), EF Core 10, SQL Server, ASP.NET Core Identity, JWT + rotating refresh tokens | `backend/` |
 | Web app | React 19, TypeScript (strict), Vite 8, Tailwind CSS 4, Radix UI, TanStack Query, react-hook-form + zod, dnd-kit | `apps/web/` |
 | Mobile app | Expo SDK 57 / React Native 0.86, Expo Router, SecureStore, expo-notifications | `apps/mobile/` |
-| Landing page | Separate repository `GastroTeam.Landing` | `../GastroTeam.Landing` |
+| Landing page | Separate repository `Gastro.Team.Landing` | `github.com/metur100/Gastro.Team.Landing` |
 
-**Live (test environment):** web app `https://metur100.github.io/GastroTeam/` (after the repository is pushed) · API `https://gastroteam.runasp.net` (`/health`).
+**Live (test environment):** web app `https://metur100.github.io/Gastro.Team.App/` · API `https://gastroteam.runasp.net` (`/health`).
 
 ## Features
 

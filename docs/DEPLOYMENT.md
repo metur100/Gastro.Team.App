@@ -4,8 +4,8 @@
 |---|---|---|
 | API | MonsterASP.NET / runasp.net site → `https://gastroteam.runasp.net` (IIS, .NET 10, framework-dependent) | `scripts/deploy-api.ps1` (Web Deploy) |
 | Database | SQL Server 2025 Express (hosting provider database) | `scripts/apply-migrations.ps1` (idempotent script via sqlcmd) |
-| Web app | GitHub Pages `https://metur100.github.io/GastroTeam/` | GitHub Actions `deploy-web.yml` on push to `main` |
-| Landing page | GitHub Pages `https://metur100.github.io/GastroTeam.Landing/` | separate repo, `deploy.yml` |
+| Web app | GitHub Pages `https://metur100.github.io/Gastro.Team.App/` | GitHub Actions `deploy-web.yml` on push to `main` |
+| Landing page | GitHub Pages `https://metur100.github.io/Gastro.Team.Landing/` | separate repo, `deploy.yml` |
 
 GitHub hosts only static files; the API and database run at the ASP.NET host.
 
@@ -19,11 +19,11 @@ GT_CONNECTION=Server=…; Database=…; User Id=…; Password=…; Encrypt=True;
 GT_JWT_SIGNING_KEY=<48 random bytes, base64url>
 GT_DEPLOY_SERVER=<siteNNN>.siteasp.net   GT_DEPLOY_SITE=<siteNNN>   GT_DEPLOY_USER=<siteNNN>   GT_DEPLOY_PASSWORD=…
 GT_API_URL=https://gastroteam.runasp.net
-GT_WEB_URL=https://metur100.github.io/GastroTeam
+GT_WEB_URL=https://metur100.github.io/Gastro.Team.App
 GT_WEB_ORIGIN=https://metur100.github.io
 # optional
-GT_SMTP_HOST=  GT_SMTP_PORT=  GT_SMTP_USER=  GT_SMTP_PASSWORD=  GT_SMTP_FROM=
-GT_REQUIRE_EMAIL_VERIFICATION=   # default false until SMTP is configured
+GT_SMTP_HOST=  GT_SMTP_PORT=465  GT_SMTP_SECURITY=SslOnConnect  GT_SMTP_USER=  GT_SMTP_PASSWORD=  GT_SMTP_FROM=  GT_SMTP_FROM_NAME=GastroTeam
+GT_REQUIRE_EMAIL_VERIFICATION=   # default: true when GT_SMTP_HOST is set
 GT_ALLOW_MANUAL_PLAN_CHANGE=     # default true (test mode, no payments)
 GT_PLATFORM_ADMIN_EMAIL=
 ```
@@ -43,15 +43,15 @@ If the host ever lacks the .NET runtime, use `./scripts/deploy-api.ps1 -SelfCont
 ## Current production configuration (test environment)
 
 - `ASPNETCORE_ENVIRONMENT=Production` (dev endpoints and Swagger removed, HSTS on, no exception details).
-- **No SMTP configured** → `App:RequireEmailVerification=false` so registration works; verification, reset and invitation e-mails are **not sent** (invitation links are shown to the inviting manager to share). Configure SMTP and set `GT_REQUIRE_EMAIL_VERIFICATION=true` before real use.
+- **SMTP configured** (implicit TLS on port 465, `GT_SMTP_SECURITY=SslOnConnect`, sender name "GastroTeam") → `App:RequireEmailVerification=true`. Mail to reserved test domains (`*.example`, `*.invalid`, `*.test`) is never sent, so automated test accounts cause no bounces.
 - **No payment provider** → plan changes possible in labelled test mode.
 - Refresh cookie `SameSite=None; Secure; Partitioned` because app and API are on different sites (see SECURITY.md for the recommended same-site setup via a custom domain + Cloudflare).
 
 ## Web app (GitHub Pages)
 
-1. Repository `metur100/GastroTeam` → *Settings → Pages → Source: GitHub Actions*.
+1. Repository `metur100/Gastro.Team.App` → *Settings → Pages → Source: GitHub Actions* (already enabled).
 2. Optional repository variable `API_BASE_URL` (defaults to `https://gastroteam.runasp.net`).
-3. Push to `main` → `deploy-web.yml` builds with base `/GastroTeam/` and writes `404.html` for client routing.
+3. Push to `main` → `deploy-web.yml` builds with base `/Gastro.Team.App/` and writes `404.html` for client routing.
 4. If the Pages origin changes (custom domain), update `GT_WEB_URL`/`GT_WEB_ORIGIN` and redeploy the API (CORS + e-mail links).
 
 ## Cloudflare (recommended next step)

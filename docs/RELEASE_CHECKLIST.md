@@ -13,7 +13,7 @@
 
 ## Before the first real customers (open items)
 
-- [ ] **SMTP provider** configured (`GT_SMTP_*`), then `GT_REQUIRE_EMAIL_VERIFICATION=true`
+- [x] **SMTP provider** configured (`GT_SMTP_*`), e-mail verification enforced
 - [ ] **Same-site domain** (Cloudflare): `app.` / `api.` on one registrable domain, cookie `SameSite=Lax`, update CORS and `App:WebBaseUrl`
 - [ ] **Legal:** Impressum, Datenschutzerklärung, AGB/Nutzungsbedingungen, AV-Vertrag (DPA) template for restaurant customers
 - [ ] Hosting/data-residency decision documented; subprocessor list (API host, GitHub Pages, Google Fonts → consider self-hosting, Expo push, SMTP)
