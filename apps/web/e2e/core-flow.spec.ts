@@ -92,7 +92,8 @@ test('5: owner invites the employee who joins and sees the published shift', asy
 
   await page.getByRole('link', { name: employeeName }).click()
   await expect(page.getByRole('heading', { name: new RegExp(employeeName) })).toBeVisible()
-  employeePath = new URL(page.url()).pathname
+  // Keep only the route below the app base (e.g. strip /Gastro.Team.App on GitHub Pages).
+  employeePath = `/mitarbeiter/${new URL(page.url()).pathname.split('/').pop()}`
 
   const employee = await (await browser.newContext({ locale: 'de-DE', timezoneId: 'Europe/Berlin' })).newPage()
   await employee.goto(inviteLink)
