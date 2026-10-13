@@ -139,6 +139,8 @@ public sealed class SwapService(IAppDbContext db, Access access, AuditLogger aud
         if (swap.TargetEmployeeId is not null && swap.TargetEmployeeId != me) throw new NotFoundException();
         if (swap.TargetEmployeeId is null && !access.Context.EmployeeLocationIds.Contains(swap.Shift!.LocationId)) throw new NotFoundException();
         db.ApplyClientVersion(swap, r.Version);
+        if (swap.Status != SwapStatus.Pending)
+            throw new BusinessRuleException("swap_invalid_transition", Messages.Get("swap_invalid_transition"));
 
         var reason = await ConflictReasonAsync(me, swap.Shift!, ct);
         if (reason is not null) throw new BusinessRuleException("swap_target_ineligible", reason);

@@ -138,7 +138,10 @@ public sealed class TenantContextMiddleware(RequestDelegate next)
             var stamp = http.User.FindFirst("sst")?.Value;
             if (user is null || user.IsDeleted || stamp != TokenService.StampHash(user.SecurityStamp))
             {
-                await Reject(http, 401, "invalid_session", "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.");
+                // Stale token (password changed, account deleted): continue as anonymous so that
+                // [Authorize] endpoints answer 401 while login and other public endpoints keep working.
+                http.User = new System.Security.Claims.ClaimsPrincipal(new System.Security.Claims.ClaimsIdentity());
+                await next(http);
                 return;
             }
 
