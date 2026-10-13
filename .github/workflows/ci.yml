@@ -83,7 +83,6 @@ jobs:
   mobile:
     name: Mobile (typecheck, tests)
     runs-on: ubuntu-latest
-    if: ${{ hashFiles('apps/mobile/package.json') != '' }}
     defaults:
       run:
         working-directory: apps/mobile
