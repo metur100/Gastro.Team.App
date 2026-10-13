@@ -33,6 +33,7 @@ builder.Services
     .ConfigureApiBehaviorOptions(o => o.SuppressModelStateInvalidFilter = false)
     .AddJsonOptions(o => JsonSetup.Configure(o.JsonSerializerOptions));
 builder.Services.ConfigureHttpJsonOptions(o => JsonSetup.Configure(o.SerializerOptions));
+builder.Services.AddScoped<RefreshCookie>();
 builder.Services.AddExceptionHandler<ProblemExceptionHandler>();
 builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi("v1");

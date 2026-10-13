@@ -271,6 +271,9 @@ public static class ScheduleValidator
             return;
         }
 
+        // Only people who recorded positive availability windows are checked for coverage; someone who only
+        // recorded unavailability is considered available at all other times.
+        if (windows.All(a => a.Kind == AvailabilityKind.Unavailable)) return;
         var covering = day.Where(a => a.Kind != AvailabilityKind.Unavailable).ToList();
         if (!covering.Any(a => Covers(a.Start, a.End, startT, endT)))
             issues.Add(new(IssueSeverity.Warning, "outside_availability", s.Id, emp.Id, s.LocalDate, Args(("name", emp.Name))));

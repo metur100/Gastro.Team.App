@@ -1,3 +1,4 @@
+using GastroTeam.Api.Infrastructure;
 using GastroTeam.Application.Common;
 using GastroTeam.Application.Features.Account;
 using GastroTeam.Application.Features.Auth;
@@ -7,38 +8,26 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace GastroTeam.Api.Controllers;
 
-public sealed class CookieSettings
-{
-    public const string Section = "Auth:Cookie";
-    public string Name { get; set; } = "gt_refresh";
-    /// <summary>"None" when web app and API are on different sites (e.g. GitHub Pages + API host), else "Lax".</summary>
-    public string SameSite { get; set; } = "Lax";
-    public bool Secure { get; set; } = true;
-}
-
-/// <summary>Response body for logins. The refresh token is only included for native clients.</summary>
-public sealed record TokenResponse(string AccessToken, DateTime AccessTokenExpiresAt, string? RefreshToken, DateTime RefreshTokenExpiresAt);
 public sealed record RefreshRequest(string? RefreshToken);
 
 [ApiController]
 [Route("api/v1/auth")]
-public sealed class AuthController(AuthService auth, AccountService account, IConfiguration config) : ControllerBase
+public sealed class AuthController(AuthService auth, AccountService account, RefreshCookie cookie) : ControllerBase
 {
-    private const string ClientHeader = "X-Client";
     private const string CsrfHeader = "X-Requested-With";
 
-    private bool IsNativeClient => Request.Headers[ClientHeader] == "mobile";
+    private bool IsNativeClient => RefreshCookie.IsNativeClient(Request);
 
     [HttpPost("register"), AllowAnonymous, EnableRateLimiting("auth")]
     public async Task<ActionResult<object>> Register(RegisterRequest req, CancellationToken ct)
     {
         var result = await auth.RegisterAsync(req, ct);
         if (result.Tokens is null) return StatusCode(201, new { requiresEmailVerification = true });
-        return StatusCode(201, new { requiresEmailVerification = false, tokens = Issue(result.Tokens) });
+        return StatusCode(201, new { requiresEmailVerification = false, tokens = cookie.Issue(HttpContext, result.Tokens) });
     }
 
     [HttpPost("login"), AllowAnonymous, EnableRateLimiting("auth")]
-    public async Task<TokenResponse> Login(LoginRequest req, CancellationToken ct) => Issue(await auth.LoginAsync(req, ct));
+    public async Task<TokenResponse> Login(LoginRequest req, CancellationToken ct) => cookie.Issue(HttpContext, await auth.LoginAsync(req, ct));
 
     /// <summary>Rotates the refresh token. Web: HttpOnly cookie + anti-CSRF header. Native: token in body.</summary>
     [HttpPost("refresh"), AllowAnonymous, EnableRateLimiting("refresh")]
@@ -49,17 +38,17 @@ public sealed class AuthController(AuthService auth, AccountService account, ICo
         else
         {
             RequireCsrfHeader();
-            raw = Request.Cookies[Cookie.Name];
+            raw = cookie.Read(Request);
         }
         if (string.IsNullOrEmpty(raw))
             throw new UnauthorizedException("invalid_session", "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.");
         try
         {
-            return Issue(await auth.RefreshAsync(raw, ct));
+            return cookie.Issue(HttpContext, await auth.RefreshAsync(raw, ct));
         }
         catch (UnauthorizedException)
         {
-            if (!IsNativeClient) ClearCookie();
+            if (!IsNativeClient) cookie.Clear(HttpContext);
             throw;
         }
     }
@@ -71,8 +60,8 @@ public sealed class AuthController(AuthService auth, AccountService account, ICo
         else
         {
             RequireCsrfHeader();
-            await auth.LogoutAsync(Request.Cookies[Cookie.Name], ct);
-            ClearCookie();
+            await auth.LogoutAsync(cookie.Read(Request), ct);
+            cookie.Clear(HttpContext);
         }
         return NoContent();
     }
@@ -109,41 +98,12 @@ public sealed class AuthController(AuthService auth, AccountService account, ICo
     public async Task<IActionResult> ChangePassword(ChangePasswordRequest req, CancellationToken ct)
     {
         await auth.ChangePasswordAsync(req, ct);
-        if (!IsNativeClient) ClearCookie();
+        if (!IsNativeClient) cookie.Clear(HttpContext);
         return NoContent();
     }
 
     [HttpGet("me"), Authorize]
     public Task<MeDto> Me(CancellationToken ct) => account.GetMeAsync(ct);
-
-    private CookieSettings Cookie => config.GetSection(CookieSettings.Section).Get<CookieSettings>() ?? new CookieSettings();
-
-    private TokenResponse Issue(AuthTokens t)
-    {
-        if (IsNativeClient) return new TokenResponse(t.AccessToken, t.AccessTokenExpiresAt, t.RefreshToken, t.RefreshTokenExpiresAt);
-        Response.Cookies.Append(Cookie.Name, t.RefreshToken, CookieOptions(t.RefreshTokenExpiresAt));
-        return new TokenResponse(t.AccessToken, t.AccessTokenExpiresAt, null, t.RefreshTokenExpiresAt);
-    }
-
-    private void ClearCookie() => Response.Cookies.Delete(Cookie.Name, CookieOptions(DateTime.UnixEpoch));
-
-    private CookieOptions CookieOptions(DateTime expires)
-    {
-        var c = Cookie;
-        var sameSite = Enum.TryParse<SameSiteMode>(c.SameSite, true, out var s) ? s : SameSiteMode.Lax;
-        var options = new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = c.Secure || sameSite == SameSiteMode.None,
-            SameSite = sameSite,
-            Path = "/api/v1/auth",
-            Expires = expires,
-            IsEssential = true
-        };
-        // CHIPS: lets the cross-site cookie work in browsers that partition third-party cookies.
-        if (sameSite == SameSiteMode.None) options.Extensions.Add("Partitioned");
-        return options;
-    }
 
     /// <summary>A custom header forces a CORS preflight, so only allow-listed origins can trigger cookie-based calls.</summary>
     private void RequireCsrfHeader()

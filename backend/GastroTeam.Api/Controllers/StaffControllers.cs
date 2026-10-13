@@ -54,7 +54,7 @@ public sealed record InvitationTokenRequest(string Token);
 
 [ApiController, Authorize]
 [Route("api/v1/invitations")]
-public sealed class InvitationsController(InvitationService invitations) : ControllerBase
+public sealed class InvitationsController(InvitationService invitations, GastroTeam.Api.Infrastructure.RefreshCookie cookie) : ControllerBase
 {
     [HttpGet]
     public Task<IReadOnlyList<InvitationListItemDto>> Pending(CancellationToken ct) => invitations.ListPendingAsync(ct);
@@ -71,7 +71,12 @@ public sealed class InvitationsController(InvitationService invitations) : Contr
     public Task<PublicInvitationDto> Lookup(InvitationTokenRequest req, CancellationToken ct) => invitations.GetPublicAsync(req.Token, ct);
 
     [HttpPost("accept"), AllowAnonymous, EnableRateLimiting("auth")]
-    public Task<AcceptInvitationResult> Accept(AcceptInvitationRequest req, CancellationToken ct) => invitations.AcceptAsync(req, ct);
+    public async Task<object> Accept(AcceptInvitationRequest req, CancellationToken ct)
+    {
+        var result = await invitations.AcceptAsync(req, ct);
+        // New accounts are signed in directly; the refresh token goes into the HttpOnly cookie for browsers.
+        return new { result.TenantId, result.NewAccount, tokens = result.Tokens is null ? null : cookie.Issue(HttpContext, result.Tokens) };
+    }
 }
 
 [ApiController, Authorize]

@@ -36,8 +36,8 @@ public sealed class SmtpEmailSender(IOptions<EmailOptions> options, ILogger<Smtp
         message.Subject = subject;
         message.Body = new BodyBuilder { HtmlBody = htmlBody, TextBody = textBody }.ToMessageBody();
         using var client = new SmtpClient();
-        await client.ConnectAsync(_opt.SmtpHost, _opt.SmtpPort, _opt.UseStartTls ? SecureSocketOptions.StartTls : SecureSocketOptions.Auto, ct);
-        if (!string.IsNullOrEmpty(_opt.SmtpUser)) await client.AuthenticateAsync(_opt.SmtpUser, _opt.SmtpPassword, ct);
+        await client.ConnectAsync(_opt.SmtpHost!, _opt.SmtpPort, _opt.UseStartTls ? SecureSocketOptions.StartTls : SecureSocketOptions.Auto, ct);
+        if (!string.IsNullOrEmpty(_opt.SmtpUser)) await client.AuthenticateAsync(_opt.SmtpUser, _opt.SmtpPassword ?? "", ct);
         await client.SendAsync(message, ct);
         await client.DisconnectAsync(true, ct);
         logger.LogInformation("E-mail '{Subject}' sent", subject);
