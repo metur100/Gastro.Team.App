@@ -9,7 +9,7 @@ Schichtplanung und Mitarbeiterverwaltung für Restaurants, Cafés, Bars und Bäc
 | Mobile app | Expo SDK 57 / React Native 0.86, Expo Router, SecureStore, expo-notifications | `apps/mobile/` |
 | Landing page | Separate repository `Gastro.Team.Landing` | `github.com/metur100/Gastro.Team.Landing` |
 
-**Live (test environment):** web app `https://metur100.github.io/Gastro.Team.App/` · API `https://gastroteam.runasp.net` (`/health`).
+**Live (test environment):** web app `https://gastro-app.gentlegroup.de/` · API `https://gastroteam.runasp.net` (`/health`).
 
 ## Features
 

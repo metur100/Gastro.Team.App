@@ -4,8 +4,8 @@
 |---|---|---|
 | API | MonsterASP.NET / runasp.net site → `https://gastroteam.runasp.net` (IIS, .NET 10, framework-dependent) | `scripts/deploy-api.ps1` (Web Deploy) |
 | Database | SQL Server 2025 Express (hosting provider database) | `scripts/apply-migrations.ps1` (idempotent script via sqlcmd) |
-| Web app | GitHub Pages `https://metur100.github.io/Gastro.Team.App/` | GitHub Actions `deploy-web.yml` on push to `main` |
-| Landing page | GitHub Pages `https://metur100.github.io/Gastro.Team.Landing/` | separate repo, `deploy.yml` |
+| Web app | GitHub Pages `https://gastro-app.gentlegroup.de/` | GitHub Actions `deploy-web.yml` on push to `main` |
+| Landing page | GitHub Pages `https://gastro.gentlegroup.de/` | separate repo, `deploy.yml` |
 
 GitHub hosts only static files; the API and database run at the ASP.NET host.
 
@@ -19,8 +19,8 @@ GT_CONNECTION=Server=…; Database=…; User Id=…; Password=…; Encrypt=True;
 GT_JWT_SIGNING_KEY=<48 random bytes, base64url>
 GT_DEPLOY_SERVER=<siteNNN>.siteasp.net   GT_DEPLOY_SITE=<siteNNN>   GT_DEPLOY_USER=<siteNNN>   GT_DEPLOY_PASSWORD=…
 GT_API_URL=https://gastroteam.runasp.net
-GT_WEB_URL=https://metur100.github.io/Gastro.Team.App
-GT_WEB_ORIGIN=https://metur100.github.io
+GT_WEB_URL=https://gastro-app.gentlegroup.de
+GT_WEB_ORIGIN=https://gastro-app.gentlegroup.de
 # optional
 GT_SMTP_HOST=  GT_SMTP_PORT=465  GT_SMTP_SECURITY=SslOnConnect  GT_SMTP_USER=  GT_SMTP_PASSWORD=  GT_SMTP_FROM=  GT_SMTP_FROM_NAME=GastroTeam
 GT_REQUIRE_EMAIL_VERIFICATION=   # default: true when GT_SMTP_HOST is set
