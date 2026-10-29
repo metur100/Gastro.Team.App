@@ -74,4 +74,4 @@ Push: upload an APNs key (iOS) and an FCM V1 service-account JSON (Android) to E
 
 ## Review test account
 
-Demo tenant "Restaurant Berkcan" on production (fictional data only): owner login `berkcan@gentlegroup.de` (password in the Play checklist), linked to an employee profile; 14 employee logins on `@example.com` (password `Teamdemo2026`, no mail is sent to those addresses). Details: [store-assets/android/GOOGLE-PLAY-CONSOLE.md](../store-assets/android/GOOGLE-PLAY-CONSOLE.md).
+Demo tenant "Restaurant Berkcan" on production (fictional data only): owner login `berkcan@gentlegroup.de` (password in GentleHub → GastroTeam → Testfirma-Login), linked to an employee profile; 14 employee logins on `@example.com` (password in GentleHub → Demo-Mitarbeiter-Login, no mail is sent to those addresses). Details: [store-assets/android/GOOGLE-PLAY-CONSOLE.md](../store-assets/android/GOOGLE-PLAY-CONSOLE.md).

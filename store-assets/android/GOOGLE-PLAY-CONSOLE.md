@@ -147,7 +147,7 @@ data, push tokens), the hosting (MonsterASP.NET / runasp.net, SQL Server), the e
 |---|---|
 | Name | `Demo-Betrieb (Inhaber + Mitarbeiterprofil)` |
 | Username | `berkcan@gentlegroup.de` |
-| Password | `Runderbaum12` |
+| Password | (see GentleHub → project → Testfirma-Login) |
 | Any other information | see below |
 
 ```
@@ -287,7 +287,7 @@ First release of GastroTeam:
 
 Restaurant Berkcan, Köln – locations *Berkcan Altstadt* (Tue–Sun) and *Berkcan Ehrenfeld* (Wed–Sun) with opening hours;
 8 roles (Service, Küche, Bar, Schichtleitung, Spüle, Aushilfe, Beikoch, Runner); 15 employees (full-time, part-time,
-Minijob) with accounts on `@example.com` (password `Teamdemo2026`, no mail is ever sent to those addresses); published
+Minijob) with accounts on `@example.com` (password in GentleHub → Demo-Mitarbeiter-Login, no mail is ever sent to those addresses); published
 weeks 19.10., 26.10. and 02.11.2026 and a draft week 09.11.2026; weekly availability and exceptions; leave requests
 (pending/approved/declined, vacation/sick/training/unpaid/other); shift-swap offers (open, awaiting approval, completed,
 declined); notifications. All names are fictional.
