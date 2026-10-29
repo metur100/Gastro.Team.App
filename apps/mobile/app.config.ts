@@ -2,11 +2,11 @@ import type { ExpoConfig, ConfigContext } from 'expo/config'
 
 /**
  * Values marked REPLACE must be confirmed before a store release (see docs/STORE_RELEASE.md):
- * bundle identifier / package name, EAS project id, associated domain for universal links.
+ * EAS project id, associated domain for universal links. Bundle id / package: com.certidevelopment.gastroteam.
  */
 const APP_VARIANT = process.env.APP_VARIANT ?? 'production'
 const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'https://gastroteam.runasp.net'
-const BUNDLE_ID = process.env.GT_BUNDLE_ID ?? 'de.gastroteam.app' // REPLACE if a different identifier is registered
+const BUNDLE_ID = process.env.GT_BUNDLE_ID ?? 'com.certidevelopment.gastroteam' // Play Console / App Store id; dev/preview get a suffix
 const suffix = APP_VARIANT === 'production' ? '' : `.${APP_VARIANT}`
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
@@ -38,6 +38,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     'expo-secure-store',
     ['expo-splash-screen', { image: './assets/splash-icon.png', imageWidth: 160, resizeMode: 'contain', backgroundColor: '#0c6358' }],
     ['expo-notifications', { icon: './assets/notification-icon.png', color: '#0c6358' }],
+    './plugins/withAndroidReleaseSigning',
+    './plugins/withLocalCmakeDir',
   ],
   experiments: { typedRoutes: false },
   extra: {

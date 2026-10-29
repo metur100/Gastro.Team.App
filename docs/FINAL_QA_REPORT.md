@@ -61,7 +61,7 @@ Payment provider; EAS project + APNs/FCM credentials; custom domain via Cloudfla
 
 ## 13–14. Android / iOS release status
 
-Not built, not submitted. Configuration, assets, EAS profiles and listing texts are prepared ([STORE_RELEASE.md](STORE_RELEASE.md)). Bundle identifier `de.gastroteam.app` is a placeholder.
+Android: signed release AAB 1.0.0 (versionCode 1) built locally with the upload key; not yet uploaded ([STORE_RELEASE.md](STORE_RELEASE.md), `store-assets/android/GOOGLE-PLAY-CONSOLE.md`). iOS: not built. Bundle identifier / package: `com.certidevelopment.gastroteam`.
 
 ## 15. Deployment readiness
 

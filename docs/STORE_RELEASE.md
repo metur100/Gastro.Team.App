@@ -1,16 +1,21 @@
 # App Store / Google Play release
 
-**Status: not submitted. No release builds have been produced** (requires an Expo/EAS account, Apple Developer Program, Google Play Console account and signing credentials, none of which were available). The JS bundles for Android and iOS build successfully (`expo export`).
+**Status (2026-10-29):**
+
+- **Google Play: ready to upload, not yet submitted.** Signed release AAB 1.0.0 (versionCode 1, API `https://gastroteam.runasp.net`) built locally with the upload key (`CN=Medin Turkes, O=Medin Turkes, C=DE`, alias `gastroteam-upload`, SHA-256 `CE:55:D3:26:6E:C2:21:53:80:9A:E0:9A:FB:C7:21:D2:5F:2B:D4:B3:BA:25:A9:E4:BB:D1:BD:6F:D6:EC:B8:EB`). AAB, keystore and password file are stored outside the repository (`C:\Users\TurkesMedin\keystore\`). Icon, feature graphic and phone screenshots: `store-assets/android/`. Every Play Console field: [store-assets/android/GOOGLE-PLAY-CONSOLE.md](../store-assets/android/GOOGLE-PLAY-CONSOLE.md). Build steps: `apps/mobile/README.md` → Release.
+- **Review account:** `berkcan@gentlegroup.de`, owner of the demo company "Restaurant Berkcan" (2 locations, 15 employees, 4 weeks of shifts); the owner is also linked to an employee profile, so the employee and the manager screens both have data.
+- **Open before publishing:** the privacy policy and imprint on `https://gastro.gentlegroup.de/datenschutz/` and `/impressum/` still show template placeholders; a public account-deletion page is recommended (see the Play checklist).
+- **iOS:** not built (needs Apple Developer Program + EAS or Xcode).
 
 ## Values to confirm or replace
 
 | Value | Where | Current |
 |---|---|---|
-| iOS bundle identifier / Android package | `apps/mobile/app.config.ts` (`GT_BUNDLE_ID`) | `de.gastroteam.app` (placeholder) |
+| iOS bundle identifier / Android package | `apps/mobile/app.config.ts` (`GT_BUNDLE_ID`) | `com.certidevelopment.gastroteam` (dev/preview: `.development` / `.preview` suffix) |
 | EAS project id | env `EAS_PROJECT_ID` (after `npx eas-cli init`) | not set → push registration disabled |
 | Associated domain / app links for invitations | `app.config.ts` (`associatedDomains`, Android intent filters) | commented placeholder; custom scheme `gastroteam://` works |
-| Privacy policy URL | store listings | `https://<domain>/datenschutz/` (placeholder page exists) |
-| Support URL / e-mail | store listings | `kontakt@gastroteam.example` (placeholder) |
+| Privacy policy URL | store listings | `https://gastro.gentlegroup.de/datenschutz/` (page exists, content still a template) |
+| Support URL / e-mail | store listings | `https://gastro.gentlegroup.de/`, `certidevelopment@gmail.com` (developer account contact) |
 | API URL per profile | `eas.json` | `https://gastroteam.runasp.net` |
 
 ## Build & submit
@@ -69,4 +74,4 @@ Push: upload an APNs key (iOS) and an FCM V1 service-account JSON (Android) to E
 
 ## Review test account
 
-Provide reviewers with a dedicated demo tenant (not production customer data): e.g. seed a separate demo database or create a tenant manually with an employee login and a published week. Include credentials in App Review notes only.
+Demo tenant "Restaurant Berkcan" on production (fictional data only): owner login `berkcan@gentlegroup.de` (password in the Play checklist), linked to an employee profile; 14 employee logins on `@example.com` (password `Teamdemo2026`, no mail is sent to those addresses). Details: [store-assets/android/GOOGLE-PLAY-CONSOLE.md](../store-assets/android/GOOGLE-PLAY-CONSOLE.md).
